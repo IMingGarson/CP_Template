@@ -30,3 +30,16 @@ class Trie:
               return False
           current_node = current_node.children[char]
       return True
+    
+  # This calculate the longest possible prefix of a string to this trie
+  # https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix/description/
+  def longest_prefix(self, word):
+      current_node = self.root
+      prefix = ""
+      for char in word:
+          if char not in current_node.children:
+              break
+          prefix += char
+          current_node = current_node.children[char]
+      return prefix # or len(prefix) for length
+  
