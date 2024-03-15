@@ -1,5 +1,6 @@
-# https://leetcode.com/problems/sliding-window-maximum/
 # To get maximum value within a range, we can use Segment Tree in log(n) time
+# https://leetcode.com/problems/sliding-window-maximum/
+# https://leetcode.com/problems/range-sum-query-mutable/description/
 class SegmentTree:
     def __init__(self, nums):
         self.n = len(nums)
@@ -28,3 +29,15 @@ class SegmentTree:
         if left < 0 or right >= self.n or left > right:
             return None  # Handle invalid input
         return self.query(0, 0, self.n - 1, left, right)
+
+    # If the input array is mutable
+    def update(self, idx, left, right, pos, val):
+        if left == right == pos:
+            self.tree[idx] = val
+            return
+        mid = (left + right) // 2
+        if pos <= mid:
+            self.update(2 * idx + 1, left, mid, pos, val)
+        else:
+            self.update(2 * idx + 2, mid + 1, right, pos, val)
+        self.tree[idx] = max(self.tree[2 * idx + 1], self.tree[2 * idx + 2])
