@@ -2,7 +2,7 @@
 # https://leetcode.com/problems/find-beautiful-indices-in-the-given-array-ii/description/
 def kmp(search, target):
 	ret = []
-	if not target:
+	if not target: 
 		return ret
 	
 	n = len(target)
