@@ -11,9 +11,9 @@ class FenwickTree:
     def initialize(self, index: int, val: int) -> None:
         # binary indexed trees start at index 1
         index += 1
-        while index <= self.size: 
+        while index <= self.size:
             self.tree[index] += val
-            index += (index & -index)
+            index += index & -index
 
     def update(self, index, delta):
         prev_val = self.nums[index]
