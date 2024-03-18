@@ -18,12 +18,14 @@ class SegmentTree:
 
     def query(self, idx, left, right, qleft, qright):
         if qleft > right or qright < left:
-            return float('-inf')
+            return float("-inf")
         if qleft <= left and qright >= right:
             return self.tree[idx]
         mid = (left + right) // 2
-        return max(self.query(2 * idx + 1, left, mid, qleft, qright),
-                   self.query(2 * idx + 2, mid + 1, right, qleft, qright))
+        return max(
+            self.query(2 * idx + 1, left, mid, qleft, qright),
+            self.query(2 * idx + 2, mid + 1, right, qleft, qright),
+        )
 
     def maxInRange(self, left, right):
         if left < 0 or right >= self.n or left > right:
