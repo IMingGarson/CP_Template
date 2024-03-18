@@ -35,7 +35,7 @@ def sieve_of_eratosthenes(n):
   return primes
 
 # factorize a number (followed by finding prime numbers)
-def factorize(num, primes):
+def factorize(n, primes):
   factors = []
   for prime in primes:
       while n % prime == 0:
