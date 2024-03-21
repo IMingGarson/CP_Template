@@ -1,4 +1,6 @@
 # https://leetcode.com/problems/number-of-provinces/
+# https://leetcode.com/problems/min-cost-to-connect-all-points/
+
 class DisjointSet:
     def __init__(self, n):
         self.root = [i for i in range(n)]
