@@ -20,10 +20,10 @@ class DisjointSet:
             return 0
         if root_x != root_y:
             if self.rank[root_x] > self.rank[root_y]:
-                self.rank[root_y] = root_x
+                self.root[root_y] = root_x
                 self.rank[root_x] += self.rank[root_y]
             else:
-                self.rank[root_x] = root_y
+                self.root[root_x] = root_y
                 self.rank[root_y] += self.rank[root_x]
         return 1
 
