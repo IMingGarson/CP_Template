@@ -1,7 +1,7 @@
 # variant with certain conditions
 # https://leetcode.com/problems/cheapest-flights-within-k-stops/
 def dijkstra(graph, start):
-    distances = [float('inf') for _ in range(len(graph)]
+    distances = [float('inf') for _ in range(len(graph))]
     distances[start] = 0
     while pq:
         current_distance, current_vertex = heapq.heappop(pq)
