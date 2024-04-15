@@ -1,15 +1,11 @@
 # https://leetcode.com/problems/maximum-subarray/
 # Fun variant https://leetcode.com/problems/partition-array-for-maximum-sum/description/
 def kadane_max_subarray_sum(nums):
-	n = len(nums)
-    max_current = max_global = nums[0]
-
-    for i in range(1, n):
-        max_current = max(nums[i], max_current + nums[i])
-        if max_current > max_global:
-            max_global = max_current
-
-    return max_global
+	cur_max, max_till_now = 0, -inf
+	for c in nums:
+	    cur_max = max(c, cur_max + c)
+	    max_till_now = max(max_till_now, cur_max)
+	return max_till_now
 
 # https://leetcode.com/problems/maximum-product-subarray/
 def kadane_max_subarray_product(nums):
