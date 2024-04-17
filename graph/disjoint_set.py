@@ -5,13 +5,20 @@ class DisjointSet:
     def __init__(self, n):
         self.root = [i for i in range(n)]
         self.rank = [1] * n
-
-    def find(self, x):
+        
+    # find parent with path compression
+    def find_path_compression(self, x):
         parent = x
         while parent != self.root[parent]:
             self.root[parent] = self.root[self.root[parent]]
             parent = self.root[parent]
         return parent
+
+    # normal find parent
+    def find(self, x):
+        while node != self.root[node]:
+            node = self.root[self.root[node]]
+        return node
 
     def union(self, x, y):
         root_x = self.find(x)
