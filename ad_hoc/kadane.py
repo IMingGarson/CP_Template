@@ -1,5 +1,6 @@
 # https://leetcode.com/problems/maximum-subarray/
 # Fun variant https://leetcode.com/problems/partition-array-for-maximum-sum/description/
+# Two way https://leetcode.com/problems/maximum-alternating-subarray-sum/
 def kadane_max_subarray_sum(nums):
 	cur_max, max_till_now = 0, -inf
 	for c in nums:
