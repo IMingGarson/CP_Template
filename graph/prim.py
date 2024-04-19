@@ -31,7 +31,7 @@ while queue:
         visited.add(node)
         if len(visited) == n:
             return weight
-        for neighbor_node, neighbor_weight in graph[node]:
+        for neighbor_weight, neighbor_node in graph[node]:
             if neighbor_node not in visited:
                 heappush(queue, (neighbor_weight + weight, neighbor_node))
 
