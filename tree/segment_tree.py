@@ -2,44 +2,53 @@
 # https://leetcode.com/problems/sliding-window-maximum/
 # https://leetcode.com/problems/range-sum-query-mutable/description/
 class SegmentTree:
-    def __init__(self, nums):
-        self.n = len(nums)
-        self.tree = [0] * (4 * self.n)
-        self.build(nums, 0, 0, self.n - 1)
+    def __init__(self, n):
+        self.nums = [0] * (4 * n + 5)
+        self.a1 = [0] * (4 * n + 5)  # include l and r
+        self.a2 = [0] * (4 * n + 5)  # include l
+        self.a3 = [0] * (4 * n + 5)  # include r
+        self.a4 = [0] * (4 * n + 5)  # not include l and r
+        self.right = n
 
-    def build(self, nums, idx, left, right):
-        if left == right:
-            self.tree[idx] = nums[left]
+    def update(self, index, num):
+        self._update(0, 0, self.right, index, num)
+
+    def _update(self, index, curr_left, curr_right, target_index, num):
+        if curr_left == curr_right:
+            self.nums[index] = num
+            self.a1[index] = num
+            self.a2[index] = 0
+            self.a3[index] = 0
+            self.a4[index] = 0
             return
-        mid = (left + right) // 2
-        self.build(nums, 2 * idx + 1, left, mid)
-        self.build(nums, 2 * idx + 2, mid + 1, right)
-        self.tree[idx] = max(self.tree[2 * idx + 1], self.tree[2 * idx + 2])
 
-    def query(self, idx, left, right, qleft, qright):
-        if qleft > right or qright < left:
-            return float("-inf")
-        if qleft <= left and qright >= right:
-            return self.tree[idx]
-        mid = (left + right) // 2
-        return max(
-            self.query(2 * idx + 1, left, mid, qleft, qright),
-            self.query(2 * idx + 2, mid + 1, right, qleft, qright),
-        )
-
-    def maxInRange(self, left, right):
-        if left < 0 or right >= self.n or left > right:
-            return None  # Handle invalid input
-        return self.query(0, 0, self.n - 1, left, right)
-
-    # If the input array is mutable
-    def update(self, idx, left, right, pos, val):
-        if left == right == pos:
-            self.tree[idx] = val
-            return
-        mid = (left + right) // 2
-        if pos <= mid:
-            self.update(2 * idx + 1, left, mid, pos, val)
+        mid = (curr_left + curr_right) >> 1
+        if target_index > mid:
+            self._update(index * 2 + 2, mid + 1, curr_right, target_index, num)
         else:
-            self.update(2 * idx + 2, mid + 1, right, pos, val)
-        self.tree[idx] = max(self.tree[2 * idx + 1], self.tree[2 * idx + 2])
+            self._update(index * 2 + 1, curr_left, mid, target_index, num)
+
+        self.a1[index] = max(
+            self.a1[index * 2 + 1] + self.a3[index * 2 + 2],
+            self.a2[index * 2 + 1] + self.a1[index * 2 + 2],
+            self.a2[index * 2 + 1] + self.a3[index * 2 + 2],
+        )
+        self.a2[index] = max(
+            self.a1[index * 2 + 1] + self.a4[index * 2 + 2],
+            self.a2[index * 2 + 1] + self.a2[index * 2 + 2],
+            self.a2[index * 2 + 1] + self.a4[index * 2 + 2],
+        )
+        self.a3[index] = max(
+            self.a3[index * 2 + 1] + self.a3[index * 2 + 2],
+            self.a4[index * 2 + 1] + self.a1[index * 2 + 2],
+            self.a4[index * 2 + 1] + self.a3[index * 2 + 2],
+        )
+        self.a4[index] = max(
+            self.a3[index * 2 + 1] + self.a4[index * 2 + 2],
+            self.a4[index * 2 + 1] + self.a2[index * 2 + 2],
+            self.a4[index * 2 + 1] + self.a4[index * 2 + 2],
+        )
+        return
+
+    def query(self):
+        return max(self.a1[0], self.a2[0], self.a3[0], self.a4[0])
