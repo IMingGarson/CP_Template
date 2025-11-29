@@ -1,54 +1,76 @@
-# To get maximum value within a range, we can use Segment Tree in log(n) time
-# https://leetcode.com/problems/sliding-window-maximum/
-# https://leetcode.com/problems/range-sum-query-mutable/description/
-class SegmentTree:
-    def __init__(self, n):
-        self.nums = [0] * (4 * n + 5)
-        self.a1 = [0] * (4 * n + 5)  # include l and r
-        self.a2 = [0] * (4 * n + 5)  # include l
-        self.a3 = [0] * (4 * n + 5)  # include r
-        self.a4 = [0] * (4 * n + 5)  # not include l and r
-        self.right = n
+class LazySegTree:
+    """Lazy segment tree supporting range add and range sum."""
 
-    def update(self, index, num):
-        self._update(0, 0, self.right, index, num)
+    def __init__(self, data: List[int]):
+        """Build tree over data[0..n-1]."""
+        self.n = len(data)
 
-    def _update(self, index, curr_left, curr_right, target_index, num):
-        if curr_left == curr_right:
-            self.nums[index] = num
-            self.a1[index] = num
-            self.a2[index] = 0
-            self.a3[index] = 0
-            self.a4[index] = 0
+        size = 1
+        while size < self.n:
+            size <<= 1
+        self.size = size
+
+        self.seg = [0] * (4 * size)
+        self.lazy = [0] * (4 * size)
+
+        if self.n:
+            self._build(1, 0, self.size, data)
+
+    def _build(self, idx: int, l: int, r: int, data: List[int]) -> None:
+        """Internal build on [l, r)."""
+        if r - l == 1:
+            if l < self.n:
+                self.seg[idx] = data[l]
             return
+        m = (l + r) // 2
+        self._build(idx * 2, l, m, data)
+        self._build(idx * 2 + 1, m, r, data)
+        self.seg[idx] = self.seg[idx * 2] + self.seg[idx * 2 + 1]
 
-        mid = (curr_left + curr_right) >> 1
-        if target_index > mid:
-            self._update(index * 2 + 2, mid + 1, curr_right, target_index, num)
-        else:
-            self._update(index * 2 + 1, curr_left, mid, target_index, num)
+    def _apply_lazy(self, idx: int, l: int, r: int, add: int) -> None:
+        """Apply lazy add to node covering [l, r)."""
+        self.seg[idx] += add * (r - l)
+        self.lazy[idx] += add
 
-        self.a1[index] = max(
-            self.a1[index * 2 + 1] + self.a3[index * 2 + 2],
-            self.a2[index * 2 + 1] + self.a1[index * 2 + 2],
-            self.a2[index * 2 + 1] + self.a3[index * 2 + 2],
-        )
-        self.a2[index] = max(
-            self.a1[index * 2 + 1] + self.a4[index * 2 + 2],
-            self.a2[index * 2 + 1] + self.a2[index * 2 + 2],
-            self.a2[index * 2 + 1] + self.a4[index * 2 + 2],
-        )
-        self.a3[index] = max(
-            self.a3[index * 2 + 1] + self.a3[index * 2 + 2],
-            self.a4[index * 2 + 1] + self.a1[index * 2 + 2],
-            self.a4[index * 2 + 1] + self.a3[index * 2 + 2],
-        )
-        self.a4[index] = max(
-            self.a3[index * 2 + 1] + self.a4[index * 2 + 2],
-            self.a4[index * 2 + 1] + self.a2[index * 2 + 2],
-            self.a4[index * 2 + 1] + self.a4[index * 2 + 2],
-        )
-        return
+    def _push(self, idx: int, l: int, r: int) -> None:
+        """Push lazy tag at idx to its children."""
+        if self.lazy[idx] == 0 or r - l == 1:
+            return
+        m = (l + r) // 2
+        add = self.lazy[idx]
+        self._apply_lazy(idx * 2, l, m, add)
+        self._apply_lazy(idx * 2 + 1, m, r, add)
+        self.lazy[idx] = 0
 
-    def query(self):
-        return max(self.a1[0], self.a2[0], self.a3[0], self.a4[0])
+    def range_add(self, ql: int, qr: int, val: int) -> None:
+        """Add val to all positions in [ql, qr)."""
+        self._range_add(1, 0, self.size, ql, qr, val)
+
+    def _range_add(self, idx: int, l: int, r: int, ql: int, qr: int, val: int) -> None:
+        """Internal range add on [l, r)."""
+        if ql >= r or qr <= l:
+            return
+        if ql <= l and r <= qr:
+            self._apply_lazy(idx, l, r, val)
+            return
+        self._push(idx, l, r)
+        m = (l + r) // 2
+        self._range_add(idx * 2, l, m, ql, qr, val)
+        self._range_add(idx * 2 + 1, m, r, ql, qr, val)
+        self.seg[idx] = self.seg[idx * 2] + self.seg[idx * 2 + 1]
+
+    def range_sum(self, ql: int, qr: int) -> int:
+        """Return sum on [ql, qr)."""
+        return self._range_sum(1, 0, self.size, ql, qr)
+
+    def _range_sum(self, idx: int, l: int, r: int, ql: int, qr: int) -> int:
+        """Internal range sum on [l, r)."""
+        if ql >= r or qr <= l:
+            return 0
+        if ql <= l and r <= qr:
+            return self.seg[idx]
+        self._push(idx, l, r)
+        m = (l + r) // 2
+        left = self._range_sum(idx * 2, l, m, ql, qr)
+        right = self._range_sum(idx * 2 + 1, m, r, ql, qr)
+        return left + right
